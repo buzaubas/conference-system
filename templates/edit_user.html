@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>Edit User</title></head>
+<body>
+<h2>Edit User</h2>
+<form method="POST" action="/edit/{{ user.user_id }}">
+    <input type="text" name="given_name" value="{{ user.given_name }}" required>
+    <input type="text" name="surname" value="{{ user.surname }}" required>
+    <input type="email" name="email" value="{{ user.email }}" required><br><br>
+    <input type="text" name="affiliation" value="{{ user.affiliation }}">
+    <input type="text" name="country" value="{{ user.country }}">
+    <input type="text" name="phone_number" value="{{ user.phone_number }}"><br><br>
+    <button type="submit">Save</button>
+    <a href="/">Cancel</a>
+</form>
+</body>
+</html>

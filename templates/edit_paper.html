@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head><title>Edit Paper</title></head>
+<body>
+<h2>Navigation</h2>
+<a href="/">Dashboard</a> | <a href="/papers">Manage Papers</a>
+<hr>
+
+<!-- БЛОК ДЛЯ ВЫВОДА ОШИБОК И СООБЩЕНИЙ -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<p style="color: {{ 'red' if category == 'error' else 'green' }};"><strong>{{ message }}</strong></p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<h2>Edit Paper #{{ paper.paper_id }}</h2>
+<form method="POST" action="/edit_paper/{{ paper.paper_id }}">
+    <label>Title:</label><br>
+    <input type="text" name="title" value="{{ paper.title }}" required style="width: 300px;"><br><br>
+
+    <label>Abstract:</label><br>
+    <textarea name="abstract" required style="width: 300px; height: 100px;">{{ paper.abstract }}</textarea><br><br>
+
+    <label>Status:</label>
+    <select name="status" required>
+        <option value="submitted" {% if paper.status == 'submitted' %}selected{% endif %}>Submitted</option>
+        <option value="under review" {% if paper.status == 'under review' %}selected{% endif %}>Under Review</option>
+        <option value="accepted" {% if paper.status == 'accepted' %}selected{% endif %}>Accepted</option>
+        <option value="rejected" {% if paper.status == 'rejected' %}selected{% endif %}>Rejected</option>
+        <option value="withdrawn" {% if paper.status == 'withdrawn' %}selected{% endif %}>Withdrawn</option>
+    </select><br><br>
+
+    <button type="submit">Save Changes</button>
+</form>
+
+<hr>
+
+<!-- НОВЫЙ БЛОК: Ключевые слова -->
+<h3>Paper Keywords</h3>
+<ul>
+    {% for kw in keywords %}
+    <li>
+        {{ kw }}
+        <form method="POST" action="/paper/{{ paper.paper_id }}/delete_keyword/{{ kw }}" style="display:inline;">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+<form method="POST" action="/paper/{{ paper.paper_id }}/add_keyword">
+    <input type="text" name="keyword" placeholder="New keyword" required>
+    <button type="submit">Add Keyword</button>
+</form>
+
+<hr>
+
+<h3>Paper Authors</h3>
+<table border="1">
+    <tr>
+        <th>Position</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Corresponding?</th>
+        <th>Actions</th> <!-- ДОБАВЛЕНА КОЛОНКА -->
+    </tr>
+    {% for author in authors %}
+    <tr>
+        <td>{{ author.author_position }}</td>
+        <td>{{ author.given_name }} {{ author.surname }}</td>
+        <td>{{ author.email }}</td>
+        <td>{{ 'Yes' if author.is_corresponding else 'No' }}</td>
+        <td>
+            <!-- КНОПКА УДАЛЕНИЯ АВТОРА -->
+            <form method="POST" action="/paper/{{ paper.paper_id }}/delete_author/{{ author.author_id }}" style="display:inline;">
+                <button type="submit">Remove</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h4>Add Author to Paper</h4>
+<form method="POST" action="/paper/{{ paper.paper_id }}/add_author">
+    <label>Select User:</label>
+    <select name="author_id" required>
+        {% for user in all_users %}
+        <option value="{{ user.user_id }}">{{ user.given_name }} {{ user.surname }} ({{ user.email }})</option>
+        {% endfor %}
+    </select><br><br>
+    <label>Position (integer):</label>
+    <input type="number" name="author_position" required><br><br>
+    <label>Is Corresponding Author?</label>
+    <input type="checkbox" name="is_corresponding" value="yes"><br><br>
+    <button type="submit">Add Author</button>
+</form>
+
+<hr>
+
+<h3>Paper Versions</h3>
+<table border="1">
+    <tr>
+        <th>Version No.</th>
+        <th>File Location</th>
+        <th>Uploaded At</th>
+        <th>Actions</th> <!-- ДОБАВЛЕНА КОЛОНКА -->
+    </tr>
+    {% for version in versions %}
+    <tr>
+        <td>{{ version.version_no }}</td>
+        <td>{{ version.file_location }}</td>
+        <td>{{ version.uploaded_at }}</td>
+        <td>
+            <!-- КНОПКА УДАЛЕНИЯ ВЕРСИИ -->
+            <form method="POST" action="/paper/{{ paper.paper_id }}/delete_version/{{ version.version_no }}" style="display:inline;">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h4>Add New Version</h4>
+<form method="POST" action="/paper/{{ paper.paper_id }}/add_version">
+    <label>Version No (integer):</label>
+    <input type="number" name="version_no" required><br><br>
+    <label>File Location / Path:</label>
+    <input type="text" name="file_location" placeholder="/uploads/paper_v1.pdf" required><br><br>
+    <button type="submit">Add Version</button>
+</form>
+</body>
+</html>

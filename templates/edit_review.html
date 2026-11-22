@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head><title>Edit Review</title></head>
+<body>
+<h2>Edit Review #{{ review.review_id }}</h2>
+<form method="POST" action="/edit_review/{{ review.review_id }}">
+    <label>Overall Score (1-5):</label>
+    <input type="number" name="overall_score" min="1" max="5" value="{{ review.overall_score }}" required><br><br>
+
+    <label>Recommendation:</label>
+    <select name="recommendation" required>
+        <option value="accept" {% if review.recommendation == 'accept' %}selected{% endif %}>Accept</option>
+        <option value="reject" {% if review.recommendation == 'reject' %}selected{% endif %}>Reject</option>
+    </select><br><br>
+
+    <label>Comments for Authors:</label><br>
+    <textarea name="comments_for_authors" required>{{ review.comments_for_authors }}</textarea><br><br>
+
+    <label>Confidential Comments:</label><br>
+    <textarea name="confidential_comments">{{ review.confidential_comments or '' }}</textarea><br><br>
+
+    <button type="submit">Save Changes</button>
+    <a href="/reviews">Cancel</a>
+</form>
+</body>
+</html>

@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: conference_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://admin:password@db:5432/conference_db
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

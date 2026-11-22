@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head><title>Manage Sessions</title></head>
+<body>
+<h2>Navigation</h2>
+<a href="/">Dashboard</a> | <a href="/users">Manage Users</a> | <a href="/papers">Manage Papers</a> | <a href="/reviews">Manage Reviews</a> | <a href="/sessions">Manage Sessions</a>
+<hr>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<p style="color: {{ 'red' if category == 'error' else 'green' }};"><strong>{{ message }}</strong></p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<h2>Assign Paper to Session</h2>
+<form method="POST" action="/sessions">
+    <label>Select Paper:</label>
+    <select name="paper_id" required>
+        <option value="" disabled selected>Select a paper...</option>
+        {% for p in papers %}
+        <option value="{{ p.paper_id }}">#{{ p.paper_id }} - {{ p.title }} (Status: {{ p.status }})</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label>Select Session:</label>
+    <select name="session_id" required>
+        <option value="" disabled selected>Select a session...</option>
+        {% for s in sessions %}
+        <option value="{{ s.session_id }}">#{{ s.session_id }} - Conference: {{ s.conference_id }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <button type="submit">Assign Paper</button>
+</form>
+
+<hr>
+<h2>Scheduled Presentations</h2>
+<table border="1">
+    <tr>
+        <th>Session ID</th>
+        <th>Session Title</th>
+        <th>Paper ID</th>
+        <th>Paper Title</th>
+    </tr>
+    {% for pr in presentations %}
+    <tr>
+        <td>{{ pr.session_id }}</td>
+        <td>{{ pr.session_title }}</td>
+        <td>{{ pr.paper_id }}</td>
+        <td>{{ pr.paper_title }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

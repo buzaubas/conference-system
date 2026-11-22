@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head><title>Manage Reviews</title></head>
+<body>
+<h2>Navigation</h2>
+<a href="/">Dashboard</a> | <a href="/users">Manage Users</a> | <a href="/papers">Manage Papers</a> | <a href="/reviews">Manage Reviews</a>
+<hr>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<p style="color: {{ 'red' if category == 'error' else 'green' }};"><strong>{{ message }}</strong></p>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<h2>Submit New Review</h2>
+<form method="POST" action="/reviews">
+    <label>Paper:</label>
+    <select name="paper_id" required>
+        {% for p in papers %}
+        <option value="{{ p.paper_id }}">#{{ p.paper_id }} - {{ p.title }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label>Reviewer:</label>
+    <select name="reviewer_id" required>
+        {% for r in reviewers %}
+        <option value="{{ r.reviewer_id }}">{{ r.given_name }} {{ r.surname }} ({{ r.email }})</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label>Overall Score (1-5):</label>
+    <input type="number" name="overall_score" min="1" max="5" required><br><br>
+
+    <label>Recommendation:</label>
+    <select name="recommendation" required>
+        <option value="accept">Accept</option>
+        <option value="reject">Reject</option>
+    </select><br><br>
+
+    <label>Comments for Authors:</label><br>
+    <textarea name="comments_for_authors" required></textarea><br><br>
+
+    <label>Confidential Comments (Optional):</label><br>
+    <textarea name="confidential_comments"></textarea><br><br>
+
+    <button type="submit">Submit Review</button>
+</form>
+
+<hr>
+<h2>All Reviews</h2>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Paper</th>
+        <th>Reviewer</th>
+        <th>Score</th>
+        <th>Recommendation</th>
+        <th>Actions</th>
+    </tr>
+    {% for rev in reviews %}
+    <tr>
+        <td>{{ rev.review_id }}</td>
+        <td>{{ rev.paper_title }}</td>
+        <td>{{ rev.given_name }} {{ rev.surname }}</td>
+        <td>{{ rev.overall_score }}</td>
+        <td>{{ rev.recommendation }}</td>
+        <td>
+            <a href="/edit_review/{{ rev.review_id }}">Edit</a> |
+            <form method="POST" action="/delete_review/{{ rev.review_id }}" style="display:inline;">
+                <button type="submit" onclick="return confirm('Delete review?');">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Papers</title>
+</head>
+<body>
+<h2>Navigation</h2>
+<a href="/">Dashboard</a> | <a href="/users">Manage Users</a> | <a href="/papers">Manage Papers</a>
+<hr>
+<hr>
+
+<h2>Add New Paper</h2>
+<form method="POST" action="/papers">
+    <input type="number" name="track_id" placeholder="Track ID" required><br><br>
+    <input type="text" name="title" placeholder="Paper Title" required><br><br>
+    <textarea name="abstract" placeholder="Abstract" required></textarea><br><br>
+    <label>Submission Date:</label>
+    <input type="date" name="submission_date" required><br><br>
+    <label>Status:</label>
+    <select name="status" required>
+        <option value="submitted">Submitted</option>
+        <option value="under review">Under Review</option>
+        <option value="accepted">Accepted</option>
+        <option value="rejected">Rejected</option>
+        <option value="withdrawn">Withdrawn</option>
+    </select><br><br>
+    <button type="submit">Add Paper</button>
+</form>
+
+<br>
+<h2>Papers List</h2>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Track ID</th>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    {% for paper in papers %}
+    <tr>
+        <td>{{ paper.paper_id }}</td>
+        <td>{{ paper.track_id }}</td>
+        <td>{{ paper.title }}</td>
+        <td>{{ paper.status }}</td>
+        <td>
+            <a href="/edit_paper/{{ paper.paper_id }}">Edit</a> |
+            <form method="POST" action="/delete_paper/{{ paper.paper_id }}" style="display:inline;">
+                <button type="submit" onclick="return confirm('Are you sure you want to delete this paper?');">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
