@@ -5,18 +5,17 @@ from requests import *
 app = Flask(__name__)
 app.secret_key = "csci341_secret_key"
 
-# --- ДОБАВЛЕННЫЙ БЛОК: Инициализация базы данных при старте Flask ---
+# Database init for Flask
 with app.app_context():
     try:
-        # Проверяем, существует ли таблица app_user
+        # check if app_user exist
         with engine.connect() as conn:
             conn.execute(text("SELECT 1 FROM app_user LIMIT 1"))
     except Exception:
-        # Если получаем ошибку (таблицы нет), запускаем скрипты
-        print("Таблицы не найдены. Запускаем schema.sql и seed.sql...")
+        # if no run scripts
+        print("Tables are not found. Running schema.sql and seed.sql...")
         execute_sql_file("sql/schema.sql")
         execute_sql_file("sql/seed.sql")
-# -------------------------------------------------------------------
 
 @app.route("/")
 def dashboard():
@@ -208,18 +207,18 @@ def sessions():
         session_id = request.form.get('session_id')
 
         if not paper_id or not session_id:
-            flash("Выберите статью и сессию!", "danger")
+            flash("Choose", "danger")
             return redirect(url_for('sessions'))
 
         try:
             # Пытаемся назначить статью на сессию (сработают бизнес-правила из requests.py)
             assign_paper_to_session(int(paper_id), int(session_id))
-            flash("Статья успешно добавлена в сессию!", "success")
+            flash("Paper successfully added!", "success")
         except ValueError as e:
             # Если бизнес-правило нарушено (статус не accepted или разные конференции)
-            flash(f"Ошибка назначения: {str(e)}", "danger")
+            flash(f"Error: {str(e)}", "danger")
         except Exception as e:
-            flash(f"Системная ошибка: {str(e)}", "danger")
+            flash(f"System error: {str(e)}", "danger")
 
         return redirect(url_for('sessions'))
 
@@ -233,14 +232,21 @@ def sessions():
 
     # 3. Получаем доступные статьи для выпадающего списка (только accepted и без сессии)
     all_papers = get_all_papers()
-    available_papers = [
-        p for p in all_papers
-        if p['status'] == 'accepted' and p.get('session_id') is None
-    ]
+
+    available_papers = []
+    for row in all_papers:
+        p = dict(row) # Превращаем строку SQLAlchemy в обычный словарь
+
+        # Берем статус, переводим в нижний регистр на случай, если там 'Accepted'
+        status = p.get('status') or ''
+
+        # Если статус accepted и сессия еще не назначена (None)
+        if status.lower() == 'accepted' and p.get('session_id') is None:
+            available_papers.append(p)
 
     return render_template(
         'sessions.html',
         sessions=sessions_list,
         presentations=presentations_list,
-        available_papers=available_papers
+        papers=available_papers  # ИСПРАВЛЕНО: передаем как 'papers', так как этого ждет HTML!
     )

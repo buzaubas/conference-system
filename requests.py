@@ -3,10 +3,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 
-# Получаем строку подключения из переменной окружения Docker
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Создаем движок подключения к БД
 engine = create_engine(DATABASE_URL, echo=True)
 
 def execute_sql_file(filepath):
@@ -16,29 +14,26 @@ def execute_sql_file(filepath):
 
         with engine.begin() as connection:
             connection.execute(sql_script)
-            print(f"Успешно: {filepath}")
+            print(f"Success: {filepath}")
 
     except FileNotFoundError:
-        print(f"Ошибка: Файл {filepath} не найден. Проверьте пути копирования в Dockerfile.")
+        print(f"Error: File {filepath} not found.")
     except SQLAlchemyError as e:
-        print(f"Ошибка базы данных при выполнении {filepath}:")
+        print(f"Error of the database {filepath}:")
         print(e)
 
 if __name__ == "__main__":
-    print("Начинаем создание и заполнение базы данных...")
+    print("Beginning creation and filling database...")
 
-    # 1. Запускаем файл создания схемы (Task 1)
     execute_sql_file("sql/schema.sql")
 
-    # 2. Запускаем файл заполнения тестовыми данными (Task 2)
     execute_sql_file("sql/seed.sql")
 
-    # 3. Выводим количество строк для проверки (Task 2)
     with engine.connect() as conn:
         result = conn.execute(text("SELECT COUNT(*) FROM app_user;"))
-        print(f"Количество пользователей в БД: {result.fetchone()[0]}")
+        print(f"Number of users in db: {result.fetchone()[0]}")
 
-# Создаем фабрику сессий
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_all_users():
@@ -318,7 +313,7 @@ def assign_paper_to_session(paper_id, session_id):
 
         if not paper:
             raise ValueError("Paper not found.")
-        if paper['status'] != 'accepted':
+        if (paper['status'] or '').lower() != 'accepted':
             raise ValueError(f"Paper must be 'accepted'. Current status: '{paper['status']}'.")
 
         # ПРОВЕРКА 2: Трек статьи и Сессия должны относиться к одной конференции

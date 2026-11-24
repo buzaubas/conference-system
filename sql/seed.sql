@@ -1,5 +1,4 @@
--- 1. Пользователи (включая телефоны для всех, чтобы пройти ограничение NOT NULL)
-INSERT INTO app_user (user_id, given_name, surname, email, affiliation, country, phone_number) 
+INSERT INTO app_user (user_id, given_name, surname, email, affiliation, country, phone_number)
 OVERRIDING SYSTEM VALUE VALUES
 (1, 'Arman', 'Armanov', 'arman.armanov@example.com', 'NU', 'Kazakhstan', '+77010000000'),
 (2, 'Amina', 'Aminova', 'amina.aminova@example.com', 'KBTU', 'Kazakhstan', '+77020000000'),
@@ -14,45 +13,37 @@ OVERRIDING SYSTEM VALUE VALUES
 (11, 'Reviewer', 'Only', 'revonly@example.com', 'Test Uni', 'UK', '+44333333333'),
 (12, 'Author', 'Only', 'authonly@example.com', 'Test Uni 2', 'Canada', '+1888888888');
 
--- 2. Авторы
 INSERT INTO author (author_id, orcid) VALUES
 (1, '0000-1111'), (2, '0000-2222'), (3, NULL), (4, NULL), (12, NULL);
 
--- 3. Рецензенты
 INSERT INTO reviewer (reviewer_id, years_experience) VALUES
 (3, 5), (4, 2), (5, 10), (6, 4), (11, 1);
 
--- 4. Экспертиза рецензентов
 INSERT INTO reviewer_expertise (reviewer_id, area_label) VALUES
 (3, 'Databases'), (4, 'Machine Learning'), (5, 'Algorithms');
 
--- 5. Конференции
 INSERT INTO conference (conference_id, name, acronym, description, city, country, start_date, end_date, submission_deadline, review_deadline) 
 OVERRIDING SYSTEM VALUE VALUES
 (1, 'Astana Tech', 'AST26', 'Tech Conf', 'Astana', 'Kazakhstan', '2027-05-01', '2027-05-05', '2027-03-01', '2027-04-01'),
 (2, 'Almaty IT', 'ALM26', 'IT Conf', 'Almaty', 'Kazakhstan', '2027-06-01', '2027-06-05', '2027-04-01', '2027-05-01'),
 (3, 'London Data', 'LND26', 'Data Conf', 'London', 'UK', '2027-07-01', '2027-07-05', '2027-05-01', '2027-06-01');
 
--- 6. Привязка рецензентов к пулам конференций
 INSERT INTO conference_reviewer (conference_id, reviewer_id) VALUES
 (1, 3), (1, 4), (1, 5), (1, 6), (1, 11),
 (2, 3), (2, 4), (2, 6);
 
--- 7. Треки
 INSERT INTO track (track_id, conference_id, name, description, research_area, coordinator_id) 
 OVERRIDING SYSTEM VALUE VALUES
 (1, 1, 'AI Track', 'AI stuff', 'AI', 3),
 (2, 1, 'Empty Track', 'No papers here', 'Networking', 4),
 (3, 2, 'DB Track', 'Databases', 'Databases', 3);
 
--- 8. Сессии
 INSERT INTO conference_session (session_id, conference_id, title, session_date, start_time, end_time, room_label, chair_id) 
 OVERRIDING SYSTEM VALUE VALUES
 (1, 1, 'Astana Empty Session', '2027-05-02', '10:00:00', '12:00:00', 'Room A', 3),
 (2, 1, 'Astana AI Session', '2027-05-02', '14:00:00', '16:00:00', 'Room B', 4),
 (3, 2, 'Almaty DB Session', '2027-06-02', '10:00:00', '12:00:00', 'Room C', 3);
 
--- 9. Статьи
 INSERT INTO paper (paper_id, track_id, title, abstract, submission_date, status, session_id) 
 OVERRIDING SYSTEM VALUE VALUES
 (1, 1, 'AI in 2026', 'Abstract here', '2027-02-15', 'accepted', 2),
@@ -66,7 +57,6 @@ OVERRIDING SYSTEM VALUE VALUES
 (9, 3, 'Just Submitted', 'Fresh paper', '2027-03-30', 'submitted', NULL),
 (10, 1, 'Another ML paper', 'Uses machine learning for stuff', '2027-02-10', 'accepted', NULL);
 
--- 10. Авторы статей
 INSERT INTO paper_author (paper_id, author_id, author_position, is_corresponding) VALUES
 (1, 1, 1, TRUE), (1, 3, 2, FALSE),
 (2, 4, 1, TRUE),
@@ -79,7 +69,6 @@ INSERT INTO paper_author (paper_id, author_id, author_position, is_corresponding
 (9, 12, 1, TRUE),
 (10, 1, 1, TRUE);
 
--- 11. Версии статей
 INSERT INTO paper_version (paper_id, version_no, file_location, uploaded_at, change_note) VALUES
 (1, 1, '/files/1_v1.pdf', '2027-02-15 10:00:00', 'Initial'),
 (1, 2, '/files/1_v2.pdf', '2027-02-18 10:00:00', 'Fixes'),
@@ -94,7 +83,6 @@ INSERT INTO paper_version (paper_id, version_no, file_location, uploaded_at, cha
 (9, 1, '/files/9_v1.pdf', '2027-03-30 10:00:00', NULL),
 (10, 1, '/files/10_v1.pdf', '2027-02-10 10:00:00', NULL);
 
--- 12. Рецензии
 INSERT INTO review (review_id, paper_id, reviewer_id, overall_score, recommendation, comments_for_authors, review_submission_date) 
 OVERRIDING SYSTEM VALUE VALUES
 (1, 1, 3, 5, 'accept', 'Great', '2027-03-10'),
@@ -108,8 +96,8 @@ OVERRIDING SYSTEM VALUE VALUES
 (9, 10, 4, 4, 'accept', 'Ok', '2027-03-10'),
 (10, 10, 6, 5, 'accept', 'Yes', '2027-03-11');
 
--- Обновление счетчиков (sequences) для колонок типа IDENTITY
--- COALESCE нужен на случай, если таблица пустая (чтобы счетчик не стал NULL)
+-- if column is IDENTITY then update its autoincrement because of test data
+-- COALESCE needed if tables are empty
 
 SELECT setval(pg_get_serial_sequence('app_user', 'user_id'), COALESCE((SELECT MAX(user_id) FROM app_user), 1));
 SELECT setval(pg_get_serial_sequence('conference', 'conference_id'), COALESCE((SELECT MAX(conference_id) FROM conference), 1));
